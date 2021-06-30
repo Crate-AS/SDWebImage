@@ -134,8 +134,16 @@ static NSString * _defaultDiskCacheDirectory;
 }
 
 + (nullable NSString *)userCacheDirectory {
-    NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    return paths.firstObject;
+//    NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    // we are overriding the cache directory
+    NSFileManager *fileManager= [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSString * _Nullable cachePath = [[[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] URLByAppendingPathComponent:@"cache"].path;
+    if(![fileManager createDirectoryAtPath: cachePath withIntermediateDirectories:YES attributes:nil error:&error]) {
+         // An error has occurred, do something to handle it
+         NSLog(@"Failed to create directory \"%@\". Error: %@", cachePath, error);
+    }
+    return cachePath;
 }
 
 - (void)migrateDiskCacheDirectory {
